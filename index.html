@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Interaktive Lehr- und Lernmaterialien zu Energie- und Umweltmanagement">
-<title>Energie- und Umweltmanagement – Lehrplattform</title>
-
+<title>Energie- und Umweltmanagement – Interaktive Lehrplattform</title>
 <style>
 :root{
   --primary: rgb(135,187,73);
@@ -14,7 +12,7 @@
   --text:#263238;
   --muted:#66757d;
   --border:#cfd8dc;
-  --sidebar-width:300px;
+  --sidebar-width:310px;
 }
 
 *{box-sizing:border-box}
@@ -46,11 +44,11 @@ header{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:24px;
   padding:24px 32px;
   background:var(--primary);
   color:white;
   border-bottom:6px solid var(--primary-dark);
+  gap:24px;
 }
 
 .header-text h1{
@@ -103,19 +101,34 @@ header{
 }
 
 .sidebar-head{
-  padding:20px 18px 14px;
-  border-bottom:1px solid #e4e8ea;
+  padding:20px;
+  background:#fafafa;
+  border-bottom:1px solid #e1e5e7;
 }
 
 .sidebar-head h2{
-  margin:0 0 6px;
+  margin:0 0 10px;
   font-size:1.15rem;
 }
 
+.search{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:9px 10px;
+  font:inherit;
+  background:white;
+}
+
+.search:focus{
+  outline:2px solid rgba(135,187,73,.25);
+  border-color:var(--primary);
+}
+
 #status{
-  margin:0;
+  margin:9px 0 0;
   color:var(--muted);
-  font-size:.85rem;
+  font-size:.82rem;
 }
 
 .nav-scroll{
@@ -124,6 +137,7 @@ header{
 }
 
 .home-link,
+.folder-toggle,
 .nav-item{
   width:100%;
   border:0;
@@ -137,34 +151,53 @@ header{
 
 .home-link{
   padding:10px 12px;
-  margin-bottom:10px;
   font-weight:bold;
   color:var(--primary-dark);
+  margin-bottom:8px;
 }
 
 .home-link:hover,
 .home-link.active{
-  background:#f3f8ee;
+  background:#f2f7ec;
 }
 
-.branch-title{
-  margin:16px 8px 6px;
+.folder{
+  margin:3px 0;
+}
+
+.folder-toggle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 10px;
+  font-weight:bold;
+}
+
+.folder-toggle:hover{
+  background:#fafafa;
+}
+
+.arrow{
+  width:14px;
   color:var(--primary-dark);
-  font-size:.82rem;
-  font-weight:bold;
-  text-transform:uppercase;
-  letter-spacing:.04em;
+  transition:transform .15s ease;
 }
 
-.section-title{
-  margin:8px 8px 4px;
-  color:#6b7780;
-  font-size:.78rem;
-  font-weight:bold;
+.folder.open > .folder-toggle .arrow{
+  transform:rotate(90deg);
+}
+
+.folder-children{
+  display:none;
+  padding-left:12px;
+}
+
+.folder.open > .folder-children{
+  display:block;
 }
 
 .nav-item{
-  padding:9px 10px 9px 13px;
+  padding:8px 10px 8px 14px;
   margin:2px 0;
   line-height:1.25;
   border-left:5px solid transparent;
@@ -185,7 +218,6 @@ header{
   min-width:0;
   min-height:0;
   background:#fff;
-  position:relative;
 }
 
 .start-page{
@@ -206,22 +238,40 @@ header{
   margin-top:0;
 }
 
-.quick-grid{
+.placeholder{
+  min-height:280px;
+  border:2px dashed #cfd8dc;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:20px;
+}
+
+.overview-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
   gap:14px;
-  margin-top:18px;
+  width:100%;
 }
 
-.quick-card{
+.overview-card{
   background:#fafafa;
   border-left:5px solid var(--primary);
-  padding:16px;
+  padding:18px;
   border-radius:8px;
+  text-align:left;
 }
 
-.quick-card strong{
+.overview-card h3{
+  margin:0 0 8px;
   color:var(--primary-dark);
+}
+
+.overview-card p{
+  margin:0;
+  color:var(--muted);
 }
 
 .viewer-wrap{
@@ -232,8 +282,8 @@ header{
 
 .viewer-toolbar{
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   gap:12px;
   padding:10px 16px;
   background:#f0f2f4;
@@ -242,8 +292,8 @@ header{
 
 .viewer-title{
   font-weight:bold;
-  white-space:nowrap;
   overflow:hidden;
+  white-space:nowrap;
   text-overflow:ellipsis;
 }
 
@@ -255,7 +305,7 @@ header{
 
 .toolbar-btn{
   border:1px solid var(--border);
-  background:white;
+  background:#fff;
   color:var(--text);
   padding:7px 11px;
   border-radius:7px;
@@ -292,14 +342,16 @@ footer{
   cursor:pointer;
 }
 
+.hidden-by-search{
+  display:none !important;
+}
+
 @media (max-width:850px){
-  body{
-    background:#fff;
-  }
+  body{background:#fff}
 
   .container{
-    margin:0;
     height:100vh;
+    margin:0;
     border-radius:0;
   }
 
@@ -308,7 +360,7 @@ footer{
   }
 
   .header-text h1{
-    font-size:1.55rem;
+    font-size:1.5rem;
   }
 
   .header-text h2{
@@ -333,7 +385,7 @@ footer{
     left:0;
     top:0;
     bottom:0;
-    width:min(88vw,330px);
+    width:min(90vw,340px);
     z-index:20;
     transform:translateX(-105%);
     transition:transform .2s ease;
@@ -377,12 +429,14 @@ footer{
 
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-head">
-      <h2>Navigation</h2>
-      <p id="status">Lernelemente werden geladen …</p>
+      <h2>Lernelemente</h2>
+      <input id="search" class="search" type="search" placeholder="Lernelement suchen …" aria-label="Lernelement suchen">
+      <p id="status">Ordnerstruktur wird geladen …</p>
     </div>
 
     <nav id="navigation" class="nav-scroll" aria-label="Navigation der Lernelemente">
       <button id="homeButton" class="home-link active" type="button">⌂ Übersicht</button>
+      <div id="tree"></div>
     </nav>
   </aside>
 
@@ -392,14 +446,17 @@ footer{
       <div class="card">
         <h2>Lehrinhalte</h2>
         <p>
-          Wählen Sie in der linken Seitenleiste ein Lernelement aus. Das ausgewählte
-          Element wird direkt auf dieser Seite angezeigt, sodass die Navigation jederzeit
-          erhalten bleibt.
+          Wählen Sie in der linken Navigation ein Lernelement aus.
+          Die Struktur der Ordner im GitHub-Repository wird automatisch übernommen.
+          Das Lernelement öffnet sich direkt auf dieser Seite, sodass die Navigation erhalten bleibt.
         </p>
       </div>
 
-      <h2>Verfügbare Bereiche</h2>
-      <div id="quickGrid" class="quick-grid"></div>
+      <h2>Interaktive Inhalte</h2>
+
+      <div class="placeholder">
+        <div id="overviewGrid" class="overview-grid"></div>
+      </div>
     </section>
 
     <section id="viewerWrap" class="viewer-wrap">
@@ -417,26 +474,30 @@ footer{
 </div>
 
 <footer>
-  Hochschule Burgenland · Standardlayout für interaktive Lehr- und Lernmaterialien
+  Hochschule Burgenland · Standardlayout für interaktive Moodle-Kurselemente
 </footer>
 
 </div>
 
 <script>
+const GITHUB_USER = "dokiat";
+const GITHUB_REPO = "EnergieUndUmweltmanagement";
+
 const sidebar = document.getElementById("sidebar");
-const nav = document.getElementById("navigation");
-const statusEl = document.getElementById("status");
+const treeElement = document.getElementById("tree");
+const statusElement = document.getElementById("status");
 const startPage = document.getElementById("startPage");
 const viewerWrap = document.getElementById("viewerWrap");
 const viewer = document.getElementById("viewer");
 const viewerTitle = document.getElementById("viewerTitle");
-const quickGrid = document.getElementById("quickGrid");
 const homeButton = document.getElementById("homeButton");
+const overviewGrid = document.getElementById("overviewGrid");
+const searchInput = document.getElementById("search");
 
-let fileIndex = new Map();
+let itemsById = new Map();
 
-function esc(v){
-  return String(v)
+function escapeHtml(value){
+  return String(value)
     .replaceAll("&","&amp;")
     .replaceAll("<","&lt;")
     .replaceAll(">","&gt;")
@@ -444,28 +505,18 @@ function esc(v){
     .replaceAll("'","&#039;");
 }
 
-function prettyName(path){
-  const filename = path.split("/").pop().replace(/\.html?$/i,"");
-  return filename
-    .replace(/^[0-9]+[_-]?/,"")
+function humanize(value){
+  return value
+    .replace(/\.html?$/i,"")
+    .replace(/^[0-9]+[_ -]?/,"")
     .replace(/[_-]+/g," ")
     .replace(/\s+/g," ")
     .trim()
     .replace(/\b\w/g,c => c.toUpperCase());
 }
 
-function sectionName(path){
-  const parts = path.split("/");
-  if(parts.length === 1) return "";
-  return parts[0]
-    .replace(/[_-]+/g," ")
-    .replace(/\s+/g," ")
-    .trim()
-    .replace(/\b\w/g,c => c.toUpperCase());
-}
-
-function idFor(branch,path){
-  return `${branch}::${path}`;
+function encodePath(path){
+  return path.split("/").map(encodeURIComponent).join("/");
 }
 
 function closeMobileMenu(){
@@ -474,32 +525,48 @@ function closeMobileMenu(){
 
 function setActive(id){
   document.querySelectorAll(".nav-item,.home-link").forEach(el => el.classList.remove("active"));
+
   if(id === "home"){
     homeButton.classList.add("active");
     return;
   }
-  const el = [...document.querySelectorAll(".nav-item")].find(x => x.dataset.id === id);
-  if(el) el.classList.add("active");
+
+  const target = [...document.querySelectorAll(".nav-item")]
+    .find(el => el.dataset.id === id);
+
+  if(target){
+    target.classList.add("active");
+
+    let parent = target.closest(".folder");
+    while(parent){
+      parent.classList.add("open");
+      parent = parent.parentElement.closest(".folder");
+    }
+  }
 }
 
 function showHome(updateHash=true){
   viewer.src = "about:blank";
   viewerWrap.style.display = "none";
   startPage.style.display = "block";
-  setActive("home");
   viewerTitle.textContent = "Lernelement";
-  if(updateHash) history.replaceState(null,"",location.pathname);
+  setActive("home");
+
+  if(updateHash){
+    history.replaceState(null,"",location.pathname);
+  }
+
   closeMobileMenu();
 }
 
 function openElement(id,updateHash=true){
-  const item = fileIndex.get(id);
+  const item = itemsById.get(id);
   if(!item) return;
 
   startPage.style.display = "none";
   viewerWrap.style.display = "grid";
-  viewerTitle.textContent = `${prettyName(item.sourcePath)} · ${item.branch}`;
-  viewer.src = item.url;
+  viewerTitle.textContent = humanize(item.path.split("/").pop());
+  viewer.src = encodePath(item.path);
   setActive(id);
 
   if(updateHash){
@@ -509,81 +576,179 @@ function openElement(id,updateHash=true){
   closeMobileMenu();
 }
 
-function renderNavigation(data){
-  let total = 0;
-  let html = "";
+function makeTree(files){
+  const root = {folders:{},files:[]};
 
-  data.branches.forEach(branch => {
-    if(!branch.files.length) return;
+  files.forEach(file => {
+    const parts = file.path.split("/");
+    const filename = parts.pop();
+    let node = root;
 
-    html += `<div class="branch-title">${esc(branch.name)}</div>`;
-
-    const groups = {};
-    branch.files.forEach(file => {
-      const section = sectionName(file.sourcePath) || "Allgemein";
-      (groups[section] ??= []).push(file);
+    parts.forEach(folder => {
+      if(!node.folders[folder]){
+        node.folders[folder] = {folders:{},files:[]};
+      }
+      node = node.folders[folder];
     });
 
-    Object.entries(groups)
-      .sort(([a],[b]) => a.localeCompare(b,"de"))
-      .forEach(([section,files]) => {
-
-        if(Object.keys(groups).length > 1 || section !== "Allgemein"){
-          html += `<div class="section-title">${esc(section)}</div>`;
-        }
-
-        files.forEach(file => {
-          total++;
-          const id = idFor(branch.name,file.sourcePath);
-          file.branch = branch.name;
-          fileIndex.set(id,file);
-
-          html += `
-            <button class="nav-item"
-                    type="button"
-                    data-id="${esc(id)}"
-                    title="${esc(file.sourcePath)}">
-              ${esc(prettyName(file.sourcePath))}
-            </button>`;
-        });
-      });
+    node.files.push({...file,filename});
   });
 
-  nav.insertAdjacentHTML("beforeend",html);
+  return root;
+}
 
-  nav.querySelectorAll(".nav-item").forEach(button => {
+function countFiles(node){
+  let total = node.files.length;
+  Object.values(node.folders).forEach(child => total += countFiles(child));
+  return total;
+}
+
+function renderNode(node,depth=0){
+  let html = "";
+
+  const folders = Object.entries(node.folders)
+    .sort(([a],[b]) => a.localeCompare(b,"de",{numeric:true}));
+
+  for(const [folderName,child] of folders){
+    const fileCount = countFiles(child);
+
+    html += `
+      <div class="folder ${depth === 0 ? "open" : ""}" data-search="${escapeHtml(humanize(folderName).toLowerCase())}">
+        <button class="folder-toggle" type="button">
+          <span class="arrow">▶</span>
+          <span>${escapeHtml(humanize(folderName))}</span>
+          <span style="margin-left:auto;color:#89969c;font-size:.78rem">${fileCount}</span>
+        </button>
+        <div class="folder-children">
+          ${renderNode(child,depth+1)}
+        </div>
+      </div>`;
+  }
+
+  const files = [...node.files].sort((a,b) =>
+    a.filename.localeCompare(b.filename,"de",{numeric:true})
+  );
+
+  for(const file of files){
+    const id = file.path;
+    itemsById.set(id,file);
+
+    html += `
+      <button class="nav-item"
+              type="button"
+              data-id="${escapeHtml(id)}"
+              data-search="${escapeHtml((humanize(file.filename)+" "+file.path).toLowerCase())}"
+              title="${escapeHtml(file.path)}">
+        ${escapeHtml(humanize(file.filename))}
+      </button>`;
+  }
+
+  return html;
+}
+
+function renderOverview(tree){
+  const folders = Object.entries(tree.folders)
+    .sort(([a],[b]) => a.localeCompare(b,"de",{numeric:true}));
+
+  overviewGrid.innerHTML = folders.map(([name,node]) => `
+    <div class="overview-card">
+      <h3>${escapeHtml(humanize(name))}</h3>
+      <p>${countFiles(node)} Lernelement${countFiles(node) === 1 ? "" : "e"}</p>
+    </div>
+  `).join("");
+
+  if(tree.files.length){
+    overviewGrid.insertAdjacentHTML("beforeend",`
+      <div class="overview-card">
+        <h3>Allgemeine Lernelemente</h3>
+        <p>${tree.files.length} Lernelement${tree.files.length === 1 ? "" : "e"}</p>
+      </div>
+    `);
+  }
+}
+
+function installTreeEvents(){
+  document.querySelectorAll(".folder-toggle").forEach(button => {
+    button.addEventListener("click",() => {
+      button.parentElement.classList.toggle("open");
+    });
+  });
+
+  document.querySelectorAll(".nav-item").forEach(button => {
     button.addEventListener("click",() => openElement(button.dataset.id));
   });
-
-  statusEl.textContent =
-    `${data.branches.length} Branch${data.branches.length === 1 ? "" : "es"} · ` +
-    `${total} Lernelement${total === 1 ? "" : "e"}`;
 }
 
-function renderQuickGrid(data){
-  quickGrid.innerHTML = data.branches
-    .filter(branch => branch.files.length)
-    .map(branch => `
-      <div class="quick-card">
-        <strong>${esc(branch.name)}</strong><br>
-        ${branch.files.length} Lernelement${branch.files.length === 1 ? "" : "e"}
-      </div>
-    `).join("");
+function applySearch(){
+  const q = searchInput.value.trim().toLowerCase();
+
+  document.querySelectorAll(".nav-item").forEach(item => {
+    const match = !q || item.dataset.search.includes(q);
+    item.classList.toggle("hidden-by-search",!match);
+  });
+
+  document.querySelectorAll(".folder").forEach(folder => {
+    if(!q){
+      folder.classList.remove("hidden-by-search");
+      return;
+    }
+
+    const ownMatch = (folder.dataset.search || "").includes(q);
+    const matchingChild = [...folder.querySelectorAll(".nav-item")]
+      .some(item => !item.classList.contains("hidden-by-search"));
+
+    folder.classList.toggle("hidden-by-search",!(ownMatch || matchingChild));
+
+    if(ownMatch || matchingChild){
+      folder.classList.add("open");
+    }
+  });
 }
 
-async function init(){
+async function loadRepositoryStructure(){
   try{
-    const response = await fetch("manifest.json",{cache:"no-store"});
-    if(!response.ok) throw new Error("manifest.json konnte nicht geladen werden");
+    const repoResponse = await fetch(
+      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}`,
+      {headers:{"Accept":"application/vnd.github+json"}}
+    );
 
-    const data = await response.json();
+    if(!repoResponse.ok){
+      throw new Error(`Repository konnte nicht gelesen werden (${repoResponse.status})`);
+    }
 
-    renderNavigation(data);
-    renderQuickGrid(data);
+    const repo = await repoResponse.json();
+    const branch = repo.default_branch;
+
+    const treeResponse = await fetch(
+      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
+      {headers:{"Accept":"application/vnd.github+json"}}
+    );
+
+    if(!treeResponse.ok){
+      throw new Error(`Ordnerstruktur konnte nicht gelesen werden (${treeResponse.status})`);
+    }
+
+    const data = await treeResponse.json();
+
+    const files = data.tree
+      .filter(item => item.type === "blob")
+      .map(item => ({path:item.path}))
+      .filter(item => /\.html?$/i.test(item.path))
+      .filter(item => item.path.toLowerCase() !== "index.html")
+      .filter(item => !item.path.split("/").some(part => part.startsWith(".")));
+
+    const tree = makeTree(files);
+
+    treeElement.innerHTML = renderNode(tree);
+    renderOverview(tree);
+    installTreeEvents();
+
+    statusElement.textContent =
+      `${files.length} Lernelement${files.length === 1 ? "" : "e"} · ${branch}`;
 
     if(location.hash.length > 1){
       const id = decodeURIComponent(location.hash.slice(1));
-      if(fileIndex.has(id)){
+      if(itemsById.has(id)){
         openElement(id,false);
         return;
       }
@@ -593,11 +758,11 @@ async function init(){
 
   }catch(error){
     console.error(error);
-    statusEl.textContent = "Inhalte konnten nicht geladen werden.";
-    quickGrid.innerHTML = `
-      <div class="quick-card">
-        <strong>Hinweis</strong><br>
-        Die Datei manifest.json fehlt oder der GitHub-Pages-Build war nicht erfolgreich.
+    statusElement.textContent = "Ordnerstruktur konnte nicht geladen werden.";
+    overviewGrid.innerHTML = `
+      <div class="overview-card">
+        <h3>Hinweis</h3>
+        <p>Prüfen Sie, ob das Repository öffentlich ist und GitHub Pages aktiviert ist.</p>
       </div>`;
   }
 }
@@ -606,14 +771,17 @@ homeButton.addEventListener("click",() => showHome());
 document.getElementById("homeToolbarButton").addEventListener("click",() => showHome());
 
 document.getElementById("reloadButton").addEventListener("click",() => {
-  if(viewer.src && viewer.src !== "about:blank"){
-    viewer.src = viewer.src;
+  const current = viewer.getAttribute("src");
+  if(current && current !== "about:blank"){
+    viewer.src = current;
   }
 });
 
 document.getElementById("menuToggle").addEventListener("click",() => {
   sidebar.classList.toggle("open");
 });
+
+searchInput.addEventListener("input",applySearch);
 
 window.addEventListener("hashchange",() => {
   if(location.hash.length <= 1){
@@ -622,10 +790,12 @@ window.addEventListener("hashchange",() => {
   }
 
   const id = decodeURIComponent(location.hash.slice(1));
-  if(fileIndex.has(id)) openElement(id,false);
+  if(itemsById.has(id)){
+    openElement(id,false);
+  }
 });
 
-init();
+loadRepositoryStructure();
 </script>
 
 </body>
