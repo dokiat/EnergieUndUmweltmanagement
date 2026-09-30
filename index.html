@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Interaktive Lehr- und Lernmaterialien zu Energie- und Umweltmanagement">
-<title>Energie- und Umweltmanagement – Lehrinhalte</title>
+<title>Energie- und Umweltmanagement – Lehrplattform</title>
 
 <style>
 :root{
@@ -14,9 +14,14 @@
   --text:#263238;
   --muted:#66757d;
   --border:#cfd8dc;
+  --sidebar-width:300px;
 }
 
 *{box-sizing:border-box}
+
+html,body{
+  height:100%;
+}
 
 body{
   margin:0;
@@ -27,18 +32,21 @@ body{
 
 .container{
   max-width:1200px;
+  height:calc(100vh - 60px);
   margin:30px auto;
   background:#fff;
   border-radius:14px;
   overflow:hidden;
   box-shadow:0 8px 20px rgba(0,0,0,.1);
+  display:grid;
+  grid-template-rows:auto 1fr auto;
 }
 
 header{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:28px;
+  gap:24px;
   padding:24px 32px;
   background:var(--primary);
   color:white;
@@ -80,7 +88,109 @@ header{
   display:block;
 }
 
-main{
+.workspace{
+  min-height:0;
+  display:grid;
+  grid-template-columns:var(--sidebar-width) 1fr;
+}
+
+.sidebar{
+  min-height:0;
+  background:#fff;
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+}
+
+.sidebar-head{
+  padding:20px 18px 14px;
+  border-bottom:1px solid #e4e8ea;
+}
+
+.sidebar-head h2{
+  margin:0 0 6px;
+  font-size:1.15rem;
+}
+
+#status{
+  margin:0;
+  color:var(--muted);
+  font-size:.85rem;
+}
+
+.nav-scroll{
+  overflow:auto;
+  padding:12px 10px 20px;
+}
+
+.home-link,
+.nav-item{
+  width:100%;
+  border:0;
+  background:transparent;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+  border-radius:8px;
+  color:var(--text);
+}
+
+.home-link{
+  padding:10px 12px;
+  margin-bottom:10px;
+  font-weight:bold;
+  color:var(--primary-dark);
+}
+
+.home-link:hover,
+.home-link.active{
+  background:#f3f8ee;
+}
+
+.branch-title{
+  margin:16px 8px 6px;
+  color:var(--primary-dark);
+  font-size:.82rem;
+  font-weight:bold;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.section-title{
+  margin:8px 8px 4px;
+  color:#6b7780;
+  font-size:.78rem;
+  font-weight:bold;
+}
+
+.nav-item{
+  padding:9px 10px 9px 13px;
+  margin:2px 0;
+  line-height:1.25;
+  border-left:5px solid transparent;
+}
+
+.nav-item:hover{
+  background:#fafafa;
+}
+
+.nav-item.active{
+  background:#fafafa;
+  border-left-color:var(--primary);
+  color:var(--primary-dark);
+  font-weight:bold;
+}
+
+.content{
+  min-width:0;
+  min-height:0;
+  background:#fff;
+  position:relative;
+}
+
+.start-page{
+  height:100%;
+  overflow:auto;
   padding:32px;
 }
 
@@ -96,70 +206,72 @@ main{
   margin-top:0;
 }
 
-#status{
-  color:var(--muted);
-  margin-bottom:0;
-}
-
-.section{
-  margin-top:30px;
-}
-
-.section-title{
-  margin:0 0 14px;
-  padding-bottom:8px;
-  border-bottom:2px solid #e4e9eb;
-  font-size:1.35rem;
-}
-
-.grid{
+.quick-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:16px;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+  margin-top:18px;
 }
 
-.learning-card{
-  display:block;
-  text-decoration:none;
-  color:var(--text);
+.quick-card{
   background:#fafafa;
-  border:1px solid #e0e5e7;
   border-left:5px solid var(--primary);
-  padding:18px 20px;
+  padding:16px;
   border-radius:8px;
-  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
 
-.learning-card:hover,
-.learning-card:focus{
-  transform:translateY(-2px);
-  box-shadow:0 6px 16px rgba(0,0,0,.1);
-  border-color:var(--primary);
-  outline:none;
-}
-
-.learning-title{
-  font-size:1.05rem;
-  font-weight:bold;
+.quick-card strong{
   color:var(--primary-dark);
-  margin-bottom:6px;
 }
 
-.learning-path{
-  color:var(--muted);
-  font-size:.84rem;
-  overflow-wrap:anywhere;
+.viewer-wrap{
+  display:none;
+  height:100%;
+  grid-template-rows:auto 1fr;
 }
 
-.notice{
-  min-height:140px;
-  border:2px dashed var(--border);
-  border-radius:10px;
+.viewer-toolbar{
   display:flex;
   align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:20px;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 16px;
+  background:#f0f2f4;
+  border-bottom:1px solid var(--border);
+}
+
+.viewer-title{
+  font-weight:bold;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.toolbar-actions{
+  display:flex;
+  gap:8px;
+  flex:0 0 auto;
+}
+
+.toolbar-btn{
+  border:1px solid var(--border);
+  background:white;
+  color:var(--text);
+  padding:7px 11px;
+  border-radius:7px;
+  cursor:pointer;
+}
+
+.toolbar-btn:hover{
+  border-color:var(--primary);
+  color:var(--primary-dark);
+}
+
+iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  background:#fff;
 }
 
 footer{
@@ -169,38 +281,75 @@ footer{
   color:#666;
 }
 
-code{
-  background:#eef1f2;
-  padding:2px 5px;
-  border-radius:4px;
+.menu-toggle{
+  display:none;
+  border:0;
+  background:white;
+  color:var(--primary-dark);
+  padding:8px 11px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-@media (max-width:760px){
+@media (max-width:850px){
+  body{
+    background:#fff;
+  }
+
   .container{
     margin:0;
+    height:100vh;
     border-radius:0;
   }
 
   header{
-    flex-direction:column;
-    align-items:flex-start;
-    padding:22px;
-  }
-
-  .logo{
-    width:100%;
-  }
-
-  .logo img{
-    width:min(220px,100%);
-  }
-
-  main{
-    padding:22px;
+    padding:18px 20px;
   }
 
   .header-text h1{
-    font-size:1.8rem;
+    font-size:1.55rem;
+  }
+
+  .header-text h2{
+    font-size:1rem;
+  }
+
+  .logo{
+    display:none;
+  }
+
+  .menu-toggle{
+    display:block;
+  }
+
+  .workspace{
+    display:block;
+    position:relative;
+  }
+
+  .sidebar{
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    width:min(88vw,330px);
+    z-index:20;
+    transform:translateX(-105%);
+    transition:transform .2s ease;
+    box-shadow:4px 0 16px rgba(0,0,0,.12);
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .content{
+    height:100%;
+  }
+
+  .start-page{
+    padding:20px;
   }
 }
 </style>
@@ -216,39 +365,84 @@ code{
     <div class="element">Übersicht der Lernelemente</div>
   </div>
 
+  <button id="menuToggle" class="menu-toggle" type="button">☰ Lernelemente</button>
+
   <div class="logo">
     <img src="https://hochschule-burgenland.at/fileadmin/user_upload/Download/Hochschule_Bgld_Logo_RGB.jpg"
          alt="Logo Hochschule Burgenland">
   </div>
 </header>
 
-<main>
-  <div class="card">
-    <h2>Lehrinhalte</h2>
-    <p>
-      Diese Seite bietet einen zentralen Zugang zu den verfügbaren interaktiven
-      Lehr- und Lernmaterialien. Neu in das Repository hochgeladene HTML-Dateien
-      werden automatisch erkannt und in der Übersicht verlinkt.
-    </p>
-    <p id="status">Lernelemente werden geladen …</p>
-  </div>
+<div class="workspace">
 
-  <div id="content"></div>
-</main>
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-head">
+      <h2>Navigation</h2>
+      <p id="status">Lernelemente werden geladen …</p>
+    </div>
+
+    <nav id="navigation" class="nav-scroll" aria-label="Navigation der Lernelemente">
+      <button id="homeButton" class="home-link active" type="button">⌂ Übersicht</button>
+    </nav>
+  </aside>
+
+  <main class="content">
+
+    <section id="startPage" class="start-page">
+      <div class="card">
+        <h2>Lehrinhalte</h2>
+        <p>
+          Wählen Sie in der linken Seitenleiste ein Lernelement aus. Das ausgewählte
+          Element wird direkt auf dieser Seite angezeigt, sodass die Navigation jederzeit
+          erhalten bleibt.
+        </p>
+      </div>
+
+      <h2>Verfügbare Bereiche</h2>
+      <div id="quickGrid" class="quick-grid"></div>
+    </section>
+
+    <section id="viewerWrap" class="viewer-wrap">
+      <div class="viewer-toolbar">
+        <div id="viewerTitle" class="viewer-title">Lernelement</div>
+        <div class="toolbar-actions">
+          <button id="reloadButton" class="toolbar-btn" type="button">Neu laden</button>
+          <button id="homeToolbarButton" class="toolbar-btn" type="button">Übersicht</button>
+        </div>
+      </div>
+      <iframe id="viewer" title="Interaktives Lernelement"></iframe>
+    </section>
+
+  </main>
+</div>
 
 <footer>
-  Hochschule Burgenland · Energie- und Umweltmanagement · Interaktive Lehrmaterialien
+  Hochschule Burgenland · Standardlayout für interaktive Lehr- und Lernmaterialien
 </footer>
 
 </div>
 
 <script>
-const GITHUB_USER = "dokiat";
-const GITHUB_REPO = "EnergieUndUmweltmanagement";
-const DEFAULT_BRANCH = "main";
+const sidebar = document.getElementById("sidebar");
+const nav = document.getElementById("navigation");
+const statusEl = document.getElementById("status");
+const startPage = document.getElementById("startPage");
+const viewerWrap = document.getElementById("viewerWrap");
+const viewer = document.getElementById("viewer");
+const viewerTitle = document.getElementById("viewerTitle");
+const quickGrid = document.getElementById("quickGrid");
+const homeButton = document.getElementById("homeButton");
 
-const API_URL =
-  `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${DEFAULT_BRANCH}?recursive=1`;
+let fileIndex = new Map();
+
+function esc(v){
+  return String(v)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
 
 function prettyName(path){
   const filename = path.split("/").pop().replace(/\.html?$/i,"");
@@ -262,8 +456,7 @@ function prettyName(path){
 
 function sectionName(path){
   const parts = path.split("/");
-  if(parts.length === 1) return "Allgemeine Lernelemente";
-
+  if(parts.length === 1) return "";
   return parts[0]
     .replace(/[_-]+/g," ")
     .replace(/\s+/g," ")
@@ -271,90 +464,168 @@ function sectionName(path){
     .replace(/\b\w/g,c => c.toUpperCase());
 }
 
-function encodePath(path){
-  return path.split("/").map(part => encodeURIComponent(part)).join("/");
+function idFor(branch,path){
+  return `${branch}::${path}`;
 }
 
-function escapeHtml(value){
-  return value
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+function closeMobileMenu(){
+  sidebar.classList.remove("open");
 }
 
-async function loadLearningElements(){
-  const status = document.getElementById("status");
-  const content = document.getElementById("content");
+function setActive(id){
+  document.querySelectorAll(".nav-item,.home-link").forEach(el => el.classList.remove("active"));
+  if(id === "home"){
+    homeButton.classList.add("active");
+    return;
+  }
+  const el = [...document.querySelectorAll(".nav-item")].find(x => x.dataset.id === id);
+  if(el) el.classList.add("active");
+}
 
-  try{
-    const response = await fetch(API_URL,{
-      headers:{"Accept":"application/vnd.github+json"}
+function showHome(updateHash=true){
+  viewer.src = "about:blank";
+  viewerWrap.style.display = "none";
+  startPage.style.display = "block";
+  setActive("home");
+  viewerTitle.textContent = "Lernelement";
+  if(updateHash) history.replaceState(null,"",location.pathname);
+  closeMobileMenu();
+}
+
+function openElement(id,updateHash=true){
+  const item = fileIndex.get(id);
+  if(!item) return;
+
+  startPage.style.display = "none";
+  viewerWrap.style.display = "grid";
+  viewerTitle.textContent = `${prettyName(item.sourcePath)} · ${item.branch}`;
+  viewer.src = item.url;
+  setActive(id);
+
+  if(updateHash){
+    history.replaceState(null,"",`#${encodeURIComponent(id)}`);
+  }
+
+  closeMobileMenu();
+}
+
+function renderNavigation(data){
+  let total = 0;
+  let html = "";
+
+  data.branches.forEach(branch => {
+    if(!branch.files.length) return;
+
+    html += `<div class="branch-title">${esc(branch.name)}</div>`;
+
+    const groups = {};
+    branch.files.forEach(file => {
+      const section = sectionName(file.sourcePath) || "Allgemein";
+      (groups[section] ??= []).push(file);
     });
 
-    if(!response.ok){
-      throw new Error(`GitHub API: ${response.status}`);
-    }
+    Object.entries(groups)
+      .sort(([a],[b]) => a.localeCompare(b,"de"))
+      .forEach(([section,files]) => {
+
+        if(Object.keys(groups).length > 1 || section !== "Allgemein"){
+          html += `<div class="section-title">${esc(section)}</div>`;
+        }
+
+        files.forEach(file => {
+          total++;
+          const id = idFor(branch.name,file.sourcePath);
+          file.branch = branch.name;
+          fileIndex.set(id,file);
+
+          html += `
+            <button class="nav-item"
+                    type="button"
+                    data-id="${esc(id)}"
+                    title="${esc(file.sourcePath)}">
+              ${esc(prettyName(file.sourcePath))}
+            </button>`;
+        });
+      });
+  });
+
+  nav.insertAdjacentHTML("beforeend",html);
+
+  nav.querySelectorAll(".nav-item").forEach(button => {
+    button.addEventListener("click",() => openElement(button.dataset.id));
+  });
+
+  statusEl.textContent =
+    `${data.branches.length} Branch${data.branches.length === 1 ? "" : "es"} · ` +
+    `${total} Lernelement${total === 1 ? "" : "e"}`;
+}
+
+function renderQuickGrid(data){
+  quickGrid.innerHTML = data.branches
+    .filter(branch => branch.files.length)
+    .map(branch => `
+      <div class="quick-card">
+        <strong>${esc(branch.name)}</strong><br>
+        ${branch.files.length} Lernelement${branch.files.length === 1 ? "" : "e"}
+      </div>
+    `).join("");
+}
+
+async function init(){
+  try{
+    const response = await fetch("manifest.json",{cache:"no-store"});
+    if(!response.ok) throw new Error("manifest.json konnte nicht geladen werden");
 
     const data = await response.json();
 
-    const files = data.tree
-      .filter(item => item.type === "blob")
-      .map(item => item.path)
-      .filter(path => /\.html?$/i.test(path))
-      .filter(path => path.toLowerCase() !== "index.html")
-      .filter(path => !path.toLowerCase().endsWith("/index.html"))
-      .sort((a,b) => a.localeCompare(b,"de"));
+    renderNavigation(data);
+    renderQuickGrid(data);
 
-    if(files.length === 0){
-      status.textContent = "Derzeit wurden noch keine weiteren HTML-Lernelemente gefunden.";
-      content.innerHTML = `
-        <div class="notice">
-          Laden Sie eine weitere HTML-Datei in das Repository hoch.
-          Sie wird anschließend automatisch hier angezeigt.
-        </div>`;
-      return;
+    if(location.hash.length > 1){
+      const id = decodeURIComponent(location.hash.slice(1));
+      if(fileIndex.has(id)){
+        openElement(id,false);
+        return;
+      }
     }
 
-    const groups = {};
-    files.forEach(path => {
-      const group = sectionName(path);
-      if(!groups[group]) groups[group] = [];
-      groups[group].push(path);
-    });
-
-    content.innerHTML = Object.entries(groups)
-      .sort(([a],[b]) => a.localeCompare(b,"de"))
-      .map(([group,paths]) => `
-        <section class="section">
-          <h2 class="section-title">${escapeHtml(group)}</h2>
-          <div class="grid">
-            ${paths.map(path => `
-              <a class="learning-card" href="${encodePath(path)}">
-                <div class="learning-title">${escapeHtml(prettyName(path))}</div>
-                <div class="learning-path">${escapeHtml(path)}</div>
-              </a>
-            `).join("")}
-          </div>
-        </section>
-      `).join("");
-
-    status.textContent =
-      `${files.length} Lernelement${files.length === 1 ? "" : "e"} verfügbar.`;
+    showHome(false);
 
   }catch(error){
     console.error(error);
-    status.textContent = "Die automatische Dateiliste konnte nicht geladen werden.";
-    content.innerHTML = `
-      <div class="notice">
-        Prüfen Sie, ob das Repository öffentlich ist, der Branch
-        <code>main</code> heißt und GitHub Pages aktiviert ist.
+    statusEl.textContent = "Inhalte konnten nicht geladen werden.";
+    quickGrid.innerHTML = `
+      <div class="quick-card">
+        <strong>Hinweis</strong><br>
+        Die Datei manifest.json fehlt oder der GitHub-Pages-Build war nicht erfolgreich.
       </div>`;
   }
 }
 
-loadLearningElements();
+homeButton.addEventListener("click",() => showHome());
+document.getElementById("homeToolbarButton").addEventListener("click",() => showHome());
+
+document.getElementById("reloadButton").addEventListener("click",() => {
+  if(viewer.src && viewer.src !== "about:blank"){
+    viewer.src = viewer.src;
+  }
+});
+
+document.getElementById("menuToggle").addEventListener("click",() => {
+  sidebar.classList.toggle("open");
+});
+
+window.addEventListener("hashchange",() => {
+  if(location.hash.length <= 1){
+    showHome(false);
+    return;
+  }
+
+  const id = decodeURIComponent(location.hash.slice(1));
+  if(fileIndex.has(id)) openElement(id,false);
+});
+
+init();
 </script>
 
 </body>
