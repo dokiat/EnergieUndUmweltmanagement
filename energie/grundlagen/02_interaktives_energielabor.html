@@ -457,6 +457,20 @@
     .big-score{white-space:normal}
   }
 
+  #station4 details.solution-path{
+    margin:0 0 6px;
+    padding:8px 10px 10px;
+    border:1px solid #e2e8ef;
+    border-radius:9px;
+    background:#f8fafc;
+  }
+  #station4 details.solution-path summary{
+    color:var(--hb-green-dark);
+  }
+  #station4 .solution-content p{
+    margin:6px 0 0;
+  }
+
   @media print{
     body{background:white}
     .card,.topbar,.final{box-shadow:none}
@@ -745,9 +759,6 @@
         </div>
       </div>
 
-      <div class="actions">
-        <button class="primary" type="button" data-check="s1">Station 1 auswerten</button>
-      </div>
       <div class="feedback" id="fb1" aria-live="polite"></div>
     </article>
 
@@ -763,9 +774,6 @@
 
       <div class="conversion-list" id="prefixTasks"></div>
 
-      <div class="actions">
-        <button class="primary" type="button" data-check="s2">Station 2 auswerten</button>
-      </div>
       <div class="feedback" id="fb2" aria-live="polite"></div>
       <details>
         <summary>Merksatz</summary>
@@ -785,9 +793,6 @@
 
       <div class="choice-list" id="choiceTasks"></div>
 
-      <div class="actions">
-        <button class="primary" type="button" data-check="s3">Station 3 auswerten</button>
-      </div>
       <div class="feedback" id="fb3" aria-live="polite"></div>
     </article>
 
@@ -803,9 +808,6 @@
 
       <div class="calc-list" id="miniTasks"></div>
 
-      <div class="actions">
-        <button class="primary" type="button" data-check="s4">Station 4 auswerten</button>
-      </div>
       <div class="feedback" id="fb4" aria-live="polite"></div>
     </article>
   </section>
@@ -814,7 +816,10 @@
     <div class="final-grid">
       <div>
         <h2 id="finalHeading" style="margin:0 0 6px">Gesamtergebnis</h2>
-        <p id="finalMessage" style="margin:0">Bearbeites Sie die vier Stationen und prüfen Sie jeweils die Antworten.</p>
+        <p id="finalMessage" style="margin:0">Bearbeiten Sie alle vier Stationen und wählen Sie anschließend „Aufgabe auswerten“.</p>
+        <div class="actions">
+          <button class="primary" type="button" id="evaluateAll">Aufgabe auswerten</button>
+        </div>
         <div class="feedback info" id="submitFeedback" aria-live="polite"></div>
       </div>
       <div class="big-score" id="bigScore">0 / 25</div>
@@ -834,7 +839,6 @@
   let selectedTile = null;
   const locked = {s1:false,s2:false,s3:false,s4:false};
   const activityId = 'energielabor-watt-joule-kelvin';
-  const storageKey = 'moodle:' + activityId + ':completed-reset-20260916';
   let scoreSubmitted = false;
   let currentMiniTasks = [];
   let currentChoiceIds = [];
@@ -858,6 +862,11 @@
       s=(Math.round(n*1e9)/1e9).toString();
     }
     return s.replace('.',',');
+  }
+
+  function formatFixedDe(n,digits=2){
+    if(!Number.isFinite(n)) return '';
+    return n.toFixed(digits).replace('.',',');
   }
 
   function lockStation(s){
@@ -1114,7 +1123,7 @@
 
       const small=document.createElement('span');
       small.className='small';
-      small.textContent=`Gesuchter Wert in ${unit}`;
+      small.textContent=`Gesuchter Wert in ${unit}. Endergebnis auf 2 Nachkommastellen runden.`;
       span.appendChild(small);
 
       const input=document.createElement('input');
@@ -1127,6 +1136,34 @@
 
       label.append(span,input);
       container.appendChild(label);
+
+      const details=document.createElement('details');
+      details.className='solution-path';
+      details.hidden=true;
+
+      const summary=document.createElement('summary');
+      summary.textContent='Lösungsweg anzeigen';
+      details.appendChild(summary);
+
+      const solution=document.createElement('div');
+      solution.className='solution-content';
+
+      if(t.type==='lift'){
+        solution.innerHTML=`<p><strong>Formel:</strong> W = m · g · h</p><p><strong>Einsetzen:</strong> W = ${formatDe(t.m)} kg · 9,81 m/s² · ${formatDe(t.h)} m</p><p><strong>Ergebnis:</strong> W = ${formatFixedDe(answer,2)} J</p>`;
+      }
+      if(t.type==='power'){
+        const hours=t.t/60;
+        solution.innerHTML=`<p><strong>Zeit umrechnen:</strong> t = ${formatDe(t.t)} min / 60 = ${formatDe(hours)} h</p><p><strong>Formel:</strong> E = P · t</p><p><strong>Einsetzen:</strong> E = ${formatDe(t.p)} kW · ${formatDe(hours)} h</p><p><strong>Ergebnis:</strong> E = ${formatFixedDe(answer,2)} kWh</p>`;
+      }
+      if(t.type==='heat'){
+        solution.innerHTML=`<p><strong>Formel:</strong> Q = m · c<sub>p</sub> · ΔT</p><p><strong>Einsetzen:</strong> Q = ${formatDe(t.m)} kg · 4,18 kJ/(kg·K) · ${formatDe(t.dT)} K</p><p><strong>Ergebnis:</strong> Q = ${formatFixedDe(answer,2)} kJ</p>`;
+      }
+      if(t.type==='temp'){
+        solution.innerHTML=`<p><strong>Formel:</strong> T = ϑ + 273,15</p><p><strong>Einsetzen:</strong> T = ${formatDe(t.c)} + 273,15</p><p><strong>Ergebnis:</strong> T = ${formatFixedDe(answer,2)} K</p>`;
+      }
+
+      details.appendChild(solution);
+      container.appendChild(details);
     });
   }
 
@@ -1148,7 +1185,7 @@
 
     const fm = document.getElementById('finalMessage');
     if(checked < 4){
-      fm.textContent = 'Bearbeite die vier Stationen und prüfe jeweils deine Antworten. Nach der vierten Überprüfung werden die Punkte automatisch übermittelt.';
+      fm.textContent = 'Bearbeiten Sie alle vier Stationen und wählen Sie anschließend „Aufgabe auswerten“.';
     } else {
       const pct = Math.round(total/25*100);
       fm.textContent = `Ergebnis: ${pct} %. Der Test ist abgeschlossen.`;
@@ -1303,15 +1340,23 @@
     });
     const pts=correct*2;
     scores.s4=pts;
+    root.querySelectorAll('#station4 details.solution-path').forEach(el=>el.hidden=false);
     setFeedback('fb4', `${pts} von 8 Punkten. ${correct===4?'Alle Berechnungen sind korrekt.':'Die Berechnungen wurden bewertet. Bei Bedarf die Lösungswege unterhalb der Aufgabe öffnen.'}`, correct===4?'ok':'bad');
     lockStation('s4');
     updateScore();
   }
 
-  root.querySelector('[data-check="s1"]').addEventListener('click',checkS1);
-  root.querySelector('[data-check="s2"]').addEventListener('click',checkS2);
-  root.querySelector('[data-check="s3"]').addEventListener('click',checkS3);
-  root.querySelector('[data-check="s4"]').addEventListener('click',checkS4);
+  function evaluateAllStations(){
+    if(locked.s1 && locked.s2 && locked.s3 && locked.s4) return;
+    checkS1();
+    checkS2();
+    checkS3();
+    checkS4();
+    const btn=document.getElementById('evaluateAll');
+    if(btn) btn.disabled=true;
+  }
+
+  document.getElementById('evaluateAll').addEventListener('click',evaluateAllStations);
 
   function submitScoreAutomatically(){
     if(scoreSubmitted) return;
@@ -1333,22 +1378,6 @@
     scoreSubmitted=true;
 
     try{
-      localStorage.setItem(storageKey, JSON.stringify({
-        completed:true, score:total, maxScore:25, percent:payload.percent,
-        stationScores:{...scores},
-        miniTasks:currentMiniTasks.map(t=>({...t})),
-        choiceQuestionIds:[...currentChoiceIds],
-        choiceAnswers:Object.fromEntries(
-          [...document.querySelectorAll('#station3 .choice')].map(row => {
-            const checked=row.querySelector('input[type=radio]:checked');
-            return [row.dataset.questionId, checked ? checked.value : null];
-          })
-        ),
-        completedAt:new Date().toISOString()
-      }));
-    }catch(e){}
-
-    try{
       if(window.parent && window.parent!==window){
         window.parent.postMessage(payload,'*');
       }
@@ -1364,44 +1393,11 @@
     }
   }
 
-  function restoreCompletedAttempt(){
-    let saved=null;
-    try{ saved=JSON.parse(localStorage.getItem(storageKey) || 'null'); }catch(e){ saved=null; }
-    if(!saved || !saved.completed) return false;
-
-    scoreSubmitted=true;
-    buildChoiceTasks(saved.choiceQuestionIds || null, saved.choiceAnswers || null);
-    buildMiniTasks(saved.miniTasks || null);
-    const st=saved.stationScores || {};
-    ['s1','s2','s3','s4'].forEach(s=>{
-      scores[s]=Number.isFinite(Number(st[s])) ? Number(st[s]) : 0;
-      locked[s]=true;
-      const card=document.getElementById('station'+s.slice(1));
-      card.classList.add('locked');
-      card.querySelectorAll('input').forEach(el=>el.disabled=true);
-      card.querySelectorAll('.tile,.drop').forEach(el=>{ el.disabled=true; el.draggable=false; });
-      const check=card.querySelector(`[data-check="${s}"]`);
-      if(check) check.disabled=true;
-    });
-
-    root.classList.add('completed');
-    const total = Number(saved.score) || 0;
-    document.getElementById('scoreText').textContent = `${total} / 25 Punkte`;
-    document.getElementById('bigScore').textContent = `${total} / 25`;
-    document.getElementById('progressFill').style.width = `${(total/25)*100}%`;
-    document.getElementById('progressText').textContent = 'Test bereits abgeschlossen.';
-    document.getElementById('finalMessage').textContent = `Dieser Test wurde bereits abgeschlossen. Ergebnis: ${total} von 25 Punkten.`;
-    setFeedback('submitFeedback','Ein erneuter Durchlauf ist nicht möglich.','info');
-    return true;
-  }
-
-  if(!restoreCompletedAttempt()){
-    buildPrefixTasks();
-    buildChoiceTasks();
-    buildMiniTasks();
-    shuffleChildren(document.getElementById('tilePool'));
-    updateScore();
-  }
+  buildPrefixTasks();
+  buildChoiceTasks();
+  buildMiniTasks();
+  shuffleChildren(document.getElementById('tilePool'));
+  updateScore();
 })();
 </script>
 </body>
