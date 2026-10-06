@@ -281,6 +281,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   }
   main{padding:18px}
   .layout{grid-template-columns:1fr;gap:18px}
+  .mode{grid-template-columns:1fr}
+  .actions{flex-direction:column}
+  .actions button{width:100%}
+  .values{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .explanation-grid{grid-template-columns:1fr}
   .footer-note{margin:0 18px 18px;padding:16px}
   footer{padding:14px 18px}
@@ -297,6 +301,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   main{padding:14px}
   .chart-panel{padding:8px}
   .canvas-wrap{height:455px}
+  .mode{grid-template-columns:1fr}
+  .control-label{align-items:center}
+  .values{grid-template-columns:1fr 1fr}
+  .value .v{font-size:.9rem}
+  .mpp-box{font-size:.8rem}
   .footer-note{margin:0 14px 14px;padding:15px}
   footer{padding:13px 14px;font-size:.86rem}
 }

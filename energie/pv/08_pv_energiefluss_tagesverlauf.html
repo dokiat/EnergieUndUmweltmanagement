@@ -58,7 +58,19 @@ canvas{display:block;width:100%;height:auto}
 .component{fill:#fff;stroke:#546e7a;stroke-width:2}
 .label{font-size:14px;font-weight:700;fill:#263238}.small{font-size:11px;fill:#455a64}.value{font-size:13px;font-weight:700;fill:#263238}
 @media(max-width:980px){.grid-two{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}.time-wrap{grid-column:1/-1}}
-@media(max-width:600px){header{padding:18px;align-items:flex-start}header img{height:42px;max-width:150px}main{padding:16px}.controls{grid-template-columns:1fr}.time-wrap{grid-template-columns:1fr}.time-readout{text-align:left}.grid-two{gap:14px}.flow-table th,.flow-table td{padding:8px}}
+@media(max-width:600px){
+  header{padding:18px;align-items:flex-start}
+  header img{height:42px;max-width:150px}
+  main{padding:16px}
+  .controls{display:flex;flex-direction:column;align-items:stretch;grid-template-columns:1fr}
+  .time-wrap{display:flex;flex-direction:column;align-items:stretch;grid-template-columns:1fr;gap:8px}
+  .time-readout{text-align:left}
+  .controls button{width:100%}
+  .grid-two{gap:14px;grid-template-columns:1fr}
+  .chart-wrap,.system-wrap,.flow-table-wrap{padding-left:10px;padding-right:10px}
+  .flow-table th,.flow-table td{padding:8px}
+  .flow-table{font-size:.85rem}
+}
 
 /* ==========================================================================
    Hochschule Burgenland – visuelle Angleichung an

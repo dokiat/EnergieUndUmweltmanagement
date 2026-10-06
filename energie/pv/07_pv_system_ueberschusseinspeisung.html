@@ -469,14 +469,25 @@ footer a:hover,footer a:focus-visible{color:#5d8f2d !important}
   header{flex-direction:column !important;align-items:flex-start !important;padding:18px !important}
   header .logo{width:180px !important;max-width:100% !important;padding:10px 14px !important}
   main{padding:18px !important}
+  .layout{grid-template-columns:1fr !important;gap:16px !important}
+  .controls{position:static !important}
+  .toggle-row{flex-direction:column !important;align-items:flex-start !important;gap:8px !important}
+  .control label{flex-direction:column !important;align-items:flex-start !important;gap:6px !important}
+  .scale{justify-content:flex-start !important;gap:10px !important;flex-wrap:wrap !important}
   .metric-grid,.explain-grid{grid-template-columns:1fr !important}
   .preset{grid-template-columns:1fr !important}
+  .diagram{padding:12px !important}
+  .diagram svg{min-height:220px !important}
   footer{padding:14px 18px !important}
 }
 @media (max-width:480px){
   .container{width:100% !important;margin:0 !important;border-radius:0 !important;box-shadow:none !important}
   header{padding:16px !important}
   main{padding:14px !important}
+  .controls,.diagram,.explain{padding:14px !important}
+  .metric{padding:10px !important}
+  .metric .value{font-size:1.05rem !important}
+  .status{font-size:.92rem !important}
   footer{padding:13px 14px !important;font-size:.86rem !important}
 }
 </style>

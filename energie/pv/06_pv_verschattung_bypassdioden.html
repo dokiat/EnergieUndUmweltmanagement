@@ -200,10 +200,17 @@ header{align-items:flex-start}
 header{padding:20px 16px;display:block}
 .logo{width:190px;max-width:100%;margin-top:16px}
 main{padding:20px 16px}
-.controls,.card,.intro,.note{padding:16px}
+.controls{grid-template-columns:1fr;gap:12px;padding:16px}
+.range-row{flex-direction:column;align-items:stretch}
+.value{width:100%;min-width:0}
+.segmented{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card,.intro,.note{padding:16px}
+.grid{grid-template-columns:1fr;gap:18px}
 .metrics{grid-template-columns:1fr}
+.module-wrap{max-width:100%}
+canvas{height:300px}
+.comparison{overflow-x:auto}
 footer{padding:15px 16px}
-canvas{height:330px}
 }
 
 /* --- Responsive Master Tablet v2 --- */

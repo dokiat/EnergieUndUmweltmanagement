@@ -435,13 +435,21 @@ svg{
 @media (max-width:760px){
   .interactive-box{padding:16px;}
   .controls{grid-template-columns:1fr;gap:16px;}
+  .control-group{padding:14px;}
+  .control-group label{font-size:.96rem;}
+  .value-display{font-size:.88rem;}
   .reset-wrap{justify-content:flex-start;}
   .chart-card{padding:12px;}
+  .chart-card h3{font-size:1rem;}
 }
 @media (max-width:480px){
   .interactive-box{padding:12px;}
   .control-group{padding:14px;}
+  .control-group input[type="range"]{min-width:0;}
+  .value-display{white-space:normal;line-height:1.4;}
   .reset-wrap button{width:100%;}
+  .legend{gap:12px; font-size:.82rem;}
+  .legend-line{width:20px;}
 }
 </style>
 </head>
