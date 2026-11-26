@@ -537,8 +537,8 @@ Mit steigender Temperatur sinkt vor allem die Leerlaufspannung.
 const stc = {
   G: 1000,
   T: 25,
-  Isc: 13.0,
-  Voc: 0.65
+  Isc: 13.86,
+  Voc: 0.7091
 };
 
 const irrSlider = document.getElementById('irradiance');
@@ -556,7 +556,8 @@ function pvCurve(G, T){
   const Isc = stc.Isc * Grel * (1 + 0.0005 * dT);
   const Voc = Math.max(0.35, stc.Voc + 0.03 * Math.log(Math.max(Grel, 0.05)) - 0.0022 * dT);
 
-  const m = 13;
+  // FF = m / (m + 1) * (m + 1)^(-1 / m) = 0.8224.
+  const m = 20.74360497285765;
   const points = [];
   const n = 140;
 
@@ -566,6 +567,11 @@ function pvCurve(G, T){
     I = Math.max(0, I);
     points.push({v: V, i: I});
   }
+
+  // Den MPP exakt abbilden, damit auch die gezeichnete Kurve den Füllfaktor erreicht.
+  const Vmpp = Voc * Math.pow(m + 1, -1 / m);
+  points.push({v: Vmpp, i: Isc * m / (m + 1)});
+  points.sort((a, b) => a.v - b.v);
 
   return {Isc, Voc, points};
 }
@@ -586,8 +592,8 @@ function drawChart(svg, currentCurve, referenceCurve, color, infoText){
   const cw = W - margin.left - margin.right;
   const ch = H - margin.top - margin.bottom;
 
-  const xMax = 0.75;
-  const yMax = 16;
+  const xMax = 0.8;
+  const yMax = 18;
 
   const x = val => margin.left + (val / xMax) * cw;
   const y = val => margin.top + ch - (val / yMax) * ch;
@@ -601,7 +607,7 @@ function drawChart(svg, currentCurve, referenceCurve, color, infoText){
   });
   svg.appendChild(bg);
 
-  for(let gx = 0; gx <= 0.7 + 1e-9; gx += 0.1){
+  for(let gx = 0; gx <= xMax + 1e-9; gx += 0.1){
     const line = createSvgEl('line', {
       x1: x(gx), y1: y(0),
       x2: x(gx), y2: y(yMax),
@@ -719,7 +725,7 @@ function drawChart(svg, currentCurve, referenceCurve, color, infoText){
     fill: color,
     'font-weight': 'bold'
   });
-  iscLabel.textContent = `Kurzschlussstrom Isc = ${currentCurve.Isc.toFixed(1)} A`;
+  iscLabel.textContent = `Kurzschlussstrom Isc = ${currentCurve.Isc.toFixed(2)} A`;
   svg.appendChild(iscLabel);
 
   // Leerlaufspannung markieren und beschriften
@@ -741,7 +747,7 @@ function drawChart(svg, currentCurve, referenceCurve, color, infoText){
     fill: color,
     'font-weight': 'bold'
   });
-  vocLabel.textContent = `Leerlaufspannung Voc = ${currentCurve.Voc.toFixed(2)} V`;
+  vocLabel.textContent = `Leerlaufspannung Voc = ${currentCurve.Voc.toFixed(4)} V`;
   svg.appendChild(vocLabel);
 
   const refVocLine = createSvgEl('line', {

@@ -247,8 +247,8 @@ footer a:hover,footer a:focus-visible{color:var(--primary-dark)}
     <aside class="control-card">
       <h2>Füllfaktor einstellen</h2>
       <div class="value-line"><span>Füllfaktor FF</span><strong id="ffValue">0,80</strong></div>
-      <input id="ffSlider" type="range" min="0.50" max="0.85" step="0.01" value="0.80" aria-label="Füllfaktor">
-      <div class="range-labels"><span>0,50</span><span>0,85</span></div>
+      <input id="ffSlider" type="range" min="0.50" max="0.90" step="0.01" value="0.80" aria-label="Füllfaktor">
+      <div class="range-labels"><span>0,50</span><span>0,90</span></div>
 
       <div class="preset-grid">
         <button type="button" data-ff="0.80">Monokristalline Zelle · FF 0,80</button>
@@ -256,8 +256,8 @@ footer a:hover,footer a:focus-visible{color:var(--primary-dark)}
       </div>
 
       <div class="metrics">
-        <div class="metric"><span>Leerlaufspannung U<sub>L</sub></span><strong id="voc">37,2 V</strong></div>
-        <div class="metric"><span>Kurzschlussstrom I<sub>K</sub></span><strong id="isc">13,8 A</strong></div>
+        <div class="metric"><span>Leerlaufspannung U<sub>L</sub></span><strong id="voc">0,7091 V</strong></div>
+        <div class="metric"><span>Kurzschlussstrom I<sub>K</sub></span><strong id="isc">13,86 A</strong></div>
         <div class="metric"><span>MPP-Spannung U<sub>MPP</sub></span><strong id="vmpp">–</strong></div>
         <div class="metric"><span>MPP-Strom I<sub>MPP</sub></span><strong id="impp">–</strong></div>
         <div class="metric"><span>MPP-Leistung P<sub>MPP</sub></span><strong id="pmpp">–</strong></div>
@@ -279,11 +279,11 @@ footer a:hover,footer a:focus-visible{color:var(--primary-dark)}
   const svg = document.getElementById('chart');
   const slider = document.getElementById('ffSlider');
   const buttons = [...document.querySelectorAll('[data-ff]')];
-  const VOC = 37.2, ISC = 13.8;
+  const VOC = 0.7091, ISC = 13.86;
   const W = 860, H = 560;
   const m = {l:82,r:62,t:42,b:72};
   const pw = W-m.l-m.r, ph = H-m.t-m.b;
-  const xMax = 40, yMax = 16;
+  const xMax = 0.8, yMax = 16;
   const sx = u => m.l + u/xMax*pw;
   const sy = i => m.t + ph - i/yMax*ph;
   const fmt = (v,d=1) => v.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -315,9 +315,10 @@ footer a:hover,footer a:focus-visible{color:var(--primary-dark)}
 
     let out = `<rect width="860" height="560" fill="#fff"/>`;
     // grid and axes
-    for(let u=0;u<=40;u+=5){
-      out += line(sx(u),m.t,sx(u),m.t+ph,u%10===0?'#cfd8dc':'#e8edef',u%10===0?1.1:1);
-      out += text(sx(u),m.t+ph+27,String(u),`text-anchor="middle" font-size="13" fill="#56636a"`);
+    for(let k=0;k<=8;k++){
+      const u=xMax*k/8;
+      out += line(sx(u),m.t,sx(u),m.t+ph,k%2===0?'#cfd8dc':'#e8edef',k%2===0?1.1:1);
+      out += text(sx(u),m.t+ph+27,fmt(u),`text-anchor="middle" font-size="13" fill="#56636a"`);
     }
     for(let i=0;i<=16;i+=2){
       out += line(m.l,sy(i),m.l+pw,sy(i),'#e2e7ea',1);
@@ -358,10 +359,10 @@ footer a:hover,footer a:focus-visible{color:var(--primary-dark)}
 
     svg.innerHTML=out;
     document.getElementById('ffValue').textContent=fmt(ff,2);
-    document.getElementById('vmpp').textContent=fmt(vmpp)+' V';
-    document.getElementById('impp').textContent=fmt(impp)+' A';
-    document.getElementById('pmpp').textContent=fmt(pmpp,0)+' W';
-    document.getElementById('pth').textContent=fmt(pth,0)+' W';
+    document.getElementById('vmpp').textContent=fmt(vmpp,4)+' V';
+    document.getElementById('impp').textContent=fmt(impp,2)+' A';
+    document.getElementById('pmpp').textContent=fmt(pmpp,3)+' W';
+    document.getElementById('pth').textContent=fmt(pth,3)+' W';
     const type = ff>=.75 ? 'kristalliner Zellen' : ff<=.70 ? 'amorphen beziehungsweise Dünnschichtzellen' : 'des Übergangsbereichs';
     document.getElementById('explanation').innerHTML = `Der eingestellte Wert liegt im typischen Bereich <strong>${type}</strong>. Die reale MPP-Fläche entspricht <strong>${fmt(ff*100,0)} %</strong> der theoretischen Rechteckfläche U<sub>L</sub> · I<sub>K</sub>.`;
     buttons.forEach(b=>b.classList.toggle('active',Math.abs(Number(b.dataset.ff)-ff)<.001));

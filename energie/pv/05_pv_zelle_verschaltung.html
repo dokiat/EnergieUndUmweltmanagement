@@ -497,11 +497,11 @@ input[type=range]{width:100%;accent-color:var(--primary-dark);cursor:pointer}
       </div>
 
       <div class="metrics">
-        <div class="metric"><span>Leerlaufspannung U<sub>OC</sub></span><strong id="vocMetric">2,10 V</strong></div>
-        <div class="metric"><span>Kurzschlussstrom I<sub>SC</sub></span><strong id="iscMetric">8,00 A</strong></div>
-        <div class="metric"><span>MPP-Spannung U<sub>MPP</sub></span><strong id="vmppMetric">1,68 V</strong></div>
-        <div class="metric"><span>MPP-Strom I<sub>MPP</sub></span><strong id="imppMetric">7,42 A</strong></div>
-        <div class="metric mpp-power"><span>Leistung im Maximum Power Point P<sub>MPP</sub></span><strong id="pmppMetric">0,00 W</strong></div>
+        <div class="metric"><span>Leerlaufspannung U<sub>OC</sub></span><strong id="vocMetric">0,7091 V</strong></div>
+        <div class="metric"><span>Kurzschlussstrom I<sub>SC</sub></span><strong id="iscMetric">13,86 A</strong></div>
+        <div class="metric"><span>MPP-Spannung U<sub>MPP</sub></span><strong id="vmppMetric">0,6113 V</strong></div>
+        <div class="metric"><span>MPP-Strom I<sub>MPP</sub></span><strong id="imppMetric">13,22 A</strong></div>
+        <div class="metric mpp-power"><span>Leistung im Maximum Power Point P<sub>MPP</sub></span><strong id="pmppMetric">8,083 W</strong></div>
       </div>
       <div class="rule" id="ruleText"><strong>Serienschaltung:</strong> Die Spannungen addieren sich, während der Strom gleich bleibt.</div>
     </section>
@@ -534,8 +534,12 @@ input[type=range]{width:100%;accent-color:var(--primary-dark);cursor:pointer}
 <script>
 (() => {
   const state={mode:'series',n:1,counts:{series:1,parallel:1}};
-  const cell={voc:0.70,isc:8.0,vmpp:0.56,impp:7.42};
-  const chartLimits={voc:cell.voc*3*1.12,isc:cell.isc*3*1.13};
+  // FF = shape / (shape + 1) * (shape + 1)^(-1 / shape) = 0.8224.
+  const cell={voc:0.7091,isc:13.86,shape:20.74360497285765};
+  const chartLimits={
+    voc:Math.ceil(cell.voc*3*1.12/0.5)*0.5,
+    isc:Math.ceil(cell.isc*3*1.13/10)*10
+  };
   const slider=document.getElementById('cellCount');
   const countValue=document.getElementById('cellCountValue');
   const seriesBtn=document.getElementById('seriesBtn');
@@ -556,25 +560,13 @@ input[type=range]{width:100%;accent-color:var(--primary-dark);cursor:pointer}
   function ivCurrent(voltage,voc,isc){
     if(voltage<0 || voltage>voc) return 0;
     const x=voltage/voc;
-    return isc*Math.max(0,1-Math.pow(x,14));
+    return isc*Math.max(0,1-Math.pow(x,cell.shape));
   }
 
   function findMpp(voc,isc){
-    let bestU = 0;
-    let bestI = isc;
-    let bestP = 0;
-    const steps = 1200;
-    for(let i=0;i<=steps;i++){
-      const u = voc*i/steps;
-      const cur = ivCurrent(u,voc,isc);
-      const p = u*cur;
-      if(p>bestP){
-        bestP = p;
-        bestU = u;
-        bestI = cur;
-      }
-    }
-    return {vmpp:bestU,impp:bestI,pmpp:bestP};
+    const vmpp=voc*Math.pow(cell.shape+1,-1/cell.shape);
+    const impp=ivCurrent(vmpp,voc,isc);
+    return {vmpp,impp,pmpp:vmpp*impp};
   }
 
   function setCanvasSize(canvas){
@@ -636,7 +628,7 @@ input[type=range]{width:100%;accent-color:var(--primary-dark);cursor:pointer}
     ctx.setLineDash([5,5]);ctx.strokeStyle='#78909c';ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(mppX,mppY);ctx.lineTo(mppX,m.t+ph);ctx.moveTo(mppX,mppY);ctx.lineTo(m.l,mppY);ctx.stroke();ctx.setLineDash([]);
     ctx.fillStyle='#263238';ctx.beginPath();ctx.arc(mppX,mppY,5.5,0,Math.PI*2);ctx.fill();
-    const label=`MPP (${fmt(val.vmpp)} V; ${fmt(val.impp)} A)`;
+    const label=`MPP (${fmt(val.vmpp,4)} V; ${fmt(val.impp)} A)`;
     ctx.font='bold 12px Arial';const tw=ctx.measureText(label).width;
     let lx=mppX+10,ly=mppY-30;if(lx+tw+14>w)lx=mppX-tw-20;if(ly<m.t)ly=mppY+12;
     ctx.fillStyle='rgba(255,255,255,.94)';ctx.strokeStyle='#b0bec5';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(lx,ly,tw+12,24,6);ctx.fill();ctx.stroke();
@@ -770,11 +762,11 @@ input[type=range]{width:100%;accent-color:var(--primary-dark);cursor:pointer}
 
   function update(){
     const v=currentValues();countValue.textContent=state.n;
-    document.getElementById('vocMetric').innerHTML=`${fmt(v.voc)} V`;
+    document.getElementById('vocMetric').innerHTML=`${fmt(v.voc,4)} V`;
     document.getElementById('iscMetric').innerHTML=`${fmt(v.isc)} A`;
-    document.getElementById('vmppMetric').innerHTML=`${fmt(v.vmpp)} V`;
+    document.getElementById('vmppMetric').innerHTML=`${fmt(v.vmpp,4)} V`;
     document.getElementById('imppMetric').innerHTML=`${fmt(v.impp)} A`;
-    document.getElementById('pmppMetric').innerHTML=`${fmt(v.pmpp)} W`;
+    document.getElementById('pmppMetric').innerHTML=`${fmt(v.pmpp,3)} W`;
     const isSeries=state.mode==='series';
     seriesBtn.classList.toggle('active',isSeries);parallelBtn.classList.toggle('active',!isSeries);
     document.getElementById('activeLegend').textContent=isSeries?`${state.n} Zelle${state.n===1?'':'n'} in Serie`:`${state.n} Zelle${state.n===1?'':'n'} parallel`;

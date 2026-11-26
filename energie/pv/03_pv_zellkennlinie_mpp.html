@@ -349,10 +349,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       </div>
       <div class="control-label">
         <label id="sliderLabel" for="workSlider">Zellspannung U</label>
-        <output id="sliderOutput">20,0 V</output>
+        <output id="sliderOutput">0,3833 V</output>
       </div>
-      <input id="workSlider" type="range" min="0" max="37" step="0.1" value="20" aria-describedby="sliderHint">
-      <div class="range-scale"><span id="scaleMin">0 V</span><span id="scaleMax">37 V</span></div>
+      <input id="workSlider" type="range" min="0" max="0.7091" step="0.0001" value="0.3833" aria-describedby="sliderHint">
+      <div class="range-scale"><span id="scaleMin">0 V</span><span id="scaleMax">0,7091 V</span></div>
       <p class="hint" id="sliderHint">Der Punkt kann zusätzlich direkt im Diagramm entlang der Kennlinie verschoben werden.</p>
 
       <div class="values">
@@ -396,12 +396,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 <script>
 'use strict';
-const VOC=37, ISC=13.8, SHAPE=18;
+// FF = SHAPE / (SHAPE + 1) * (SHAPE + 1)^(-1 / SHAPE) = 0.8224.
+const VOC=0.7091, ISC=13.86, SHAPE=20.74360497285765;
+const VOLTAGE_SCALE=VOC/37;
 const canvas=document.getElementById('chart'), ctx=canvas.getContext('2d');
 const slider=document.getElementById('workSlider');
 const voltageMode=document.getElementById('voltageMode');
 const currentMode=document.getElementById('currentMode');
-let mode='voltage', workU=20;
+let mode='voltage', workU=20*VOLTAGE_SCALE;
 
 function currentAt(u){
   const x=Math.max(0,Math.min(1,u/VOC));
@@ -412,12 +414,8 @@ function voltageAt(i){
   return VOC*Math.pow(Math.max(0,1-y/ISC),1/SHAPE);
 }
 function findMPP(){
-  let best={u:0,i:ISC,p:0};
-  for(let n=0;n<=4000;n++){
-    const u=VOC*n/4000, i=currentAt(u), p=u*i;
-    if(p>best.p) best={u,i,p};
-  }
-  return best;
+  const u=VOC*Math.pow(SHAPE+1,-1/SHAPE), i=currentAt(u);
+  return {u,i,p:u*i};
 }
 const mpp=findMPP();
 function fmt(v,d=1){return v.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d})}
@@ -427,24 +425,24 @@ function setMode(next){
   currentMode.classList.toggle('active',mode==='current');
   document.getElementById('sliderLabel').innerHTML=mode==='voltage'?'Zellspannung U':'Zellstrom I';
   if(mode==='voltage'){
-    slider.min=0;slider.max=VOC;slider.step=.1;slider.value=workU;
-    document.getElementById('scaleMin').textContent='0 V';document.getElementById('scaleMax').textContent=fmt(VOC,0)+' V';
+    slider.min=0;slider.max=VOC;slider.step=.0001;slider.value=workU;
+    document.getElementById('scaleMin').textContent='0 V';document.getElementById('scaleMax').textContent=fmt(VOC,4)+' V';
   }else{
-    slider.min=0;slider.max=ISC;slider.step=.1;slider.value=currentAt(workU);
-    document.getElementById('scaleMin').textContent='0 A';document.getElementById('scaleMax').textContent=fmt(ISC,1)+' A';
+    slider.min=0;slider.max=ISC;slider.step=.01;slider.value=currentAt(workU);
+    document.getElementById('scaleMin').textContent='0 A';document.getElementById('scaleMax').textContent=fmt(ISC,2)+' A';
   }
   update();
 }
 function update(){
   const i=currentAt(workU), p=workU*i, share=100*p/mpp.p;
-  document.getElementById('uOut').textContent=fmt(workU)+' V';
-  document.getElementById('iOut').textContent=fmt(i)+' A';
-  document.getElementById('pOut').textContent=fmt(p,0)+' W';
+  document.getElementById('uOut').textContent=fmt(workU,4)+' V';
+  document.getElementById('iOut').textContent=fmt(i,2)+' A';
+  document.getElementById('pOut').textContent=fmt(p,3)+' W';
   document.getElementById('shareOut').textContent=fmt(share,0)+' %';
-  document.getElementById('sliderOutput').textContent=mode==='voltage'?fmt(workU)+' V':fmt(i)+' A';
+  document.getElementById('sliderOutput').textContent=mode==='voltage'?fmt(workU,4)+' V':fmt(i,2)+' A';
   const delta=Math.abs(workU-mpp.u);
   const state=document.getElementById('stateText');
-  if(delta<0.25){state.innerHTML='<strong>MPP erreicht:</strong> Die Zellleistung ist maximal.'}
+  if(delta<0.25*VOLTAGE_SCALE){state.innerHTML='<strong>MPP erreicht:</strong> Die Zellleistung ist maximal.'}
   else if(workU<mpp.u){state.innerHTML='Der Arbeitspunkt liegt <strong>links vom MPP</strong>: hohe Stromstärke, aber noch zu geringe Spannung.'}
   else{state.innerHTML='Der Arbeitspunkt liegt <strong>rechts vom MPP</strong>: höhere Spannung, aber stark abfallender Zellstrom.'}
   draw();
@@ -456,7 +454,7 @@ slider.addEventListener('input',()=>{
 voltageMode.onclick=()=>setMode('voltage');
 currentMode.onclick=()=>setMode('current');
 document.getElementById('mppButton').onclick=()=>{workU=mpp.u; setMode(mode)};
-document.getElementById('resetButton').onclick=()=>{workU=20;setMode('voltage')};
+document.getElementById('resetButton').onclick=()=>{workU=20*VOLTAGE_SCALE;setMode('voltage')};
 
 function resizeCanvas(){
   const r=canvas.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
@@ -472,13 +470,13 @@ function draw(){
   const pw=W-m.l-m.r,ph=H-m.t-m.b;
   const x=u=>m.l+u/VOC*pw;
   const yI=i=>m.t+ph-i/16*ph;
-  const pMaxAxis=450;
+  const pMaxAxis=9;
   const yP=p=>m.t+ph-p/pMaxAxis*ph;
   ctx.font=(compact?'11px':'12px')+' Arial';ctx.lineWidth=1;
   ctx.strokeStyle='#e1e7ea';ctx.fillStyle='#60727c';
-  for(let u=0;u<=40;u+=5){if(u>VOC)continue;const xx=x(u);ctx.beginPath();ctx.moveTo(xx,m.t);ctx.lineTo(xx,m.t+ph);ctx.stroke();ctx.textAlign='center';ctx.fillText(String(u),xx,m.t+ph+20)}
+  for(let u=0;u<=VOC;u+=0.1){const xx=x(u);ctx.beginPath();ctx.moveTo(xx,m.t);ctx.lineTo(xx,m.t+ph);ctx.stroke();ctx.textAlign='center';ctx.fillText(fmt(u),xx,m.t+ph+20)}
   for(let i=0;i<=16;i+=2){const yy=yI(i);ctx.beginPath();ctx.moveTo(m.l,yy);ctx.lineTo(m.l+pw,yy);ctx.stroke();ctx.textAlign='right';ctx.fillText(String(i),m.l-9,yy+4)}
-  for(let p=0;p<=450;p+=50){const yy=yP(p);ctx.textAlign='left';ctx.fillStyle='#b66d20';ctx.fillText(String(p),m.l+pw+9,yy+4)}
+  for(let p=0;p<=pMaxAxis;p++){const yy=yP(p);ctx.textAlign='left';ctx.fillStyle='#b66d20';ctx.fillText(String(p),m.l+pw+9,yy+4)}
   ctx.strokeStyle='#45565e';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(m.l,m.t);ctx.lineTo(m.l,m.t+ph);ctx.lineTo(m.l+pw,m.t+ph);ctx.stroke();
   ctx.beginPath();ctx.moveTo(m.l+pw,m.t);ctx.lineTo(m.l+pw,m.t+ph);ctx.stroke();
   ctx.fillStyle='#44565e';ctx.textAlign='center';ctx.font=(compact?'12px':'14px')+' Arial';ctx.fillText('Spannung U [V]',m.l+pw/2,H-15);
@@ -491,7 +489,7 @@ function draw(){
 
   // characteristic guide lines
   ctx.setLineDash([5,4]);ctx.lineWidth=1.2;
-  ctx.strokeStyle='#3185a8';ctx.beginPath();ctx.moveTo(m.l,yI(ISC));ctx.lineTo(x(3),yI(ISC));ctx.stroke();
+  ctx.strokeStyle='#3185a8';ctx.beginPath();ctx.moveTo(m.l,yI(ISC));ctx.lineTo(x(3*VOLTAGE_SCALE),yI(ISC));ctx.stroke();
   ctx.strokeStyle='#6e9840';ctx.beginPath();ctx.moveTo(x(VOC),m.t+ph);ctx.lineTo(x(VOC),m.t+ph-72);ctx.stroke();
   ctx.strokeStyle='#c93f45';ctx.beginPath();ctx.moveTo(x(mpp.u),m.t+ph);ctx.lineTo(x(mpp.u),yI(mpp.i));ctx.lineTo(m.l,yI(mpp.i));ctx.stroke();ctx.setLineDash([]);
 
@@ -516,8 +514,8 @@ function draw(){
   ctx.fillStyle='#3185a8';ctx.fillText('Iₖ = Kurzschlussstrom',m.l+7,yI(ISC)-8);
   ctx.fillStyle='#6e9840';ctx.textAlign='right';ctx.fillText('Uₗ = Leerlaufspannung',x(VOC)-5,m.t+ph-8);
   if(!compact){
-    ctx.fillStyle='#c93f45';ctx.textAlign='left';ctx.fillText('Uₘₚₚ = '+fmt(mpp.u)+' V',x(mpp.u)+8,m.t+ph-25);
-    ctx.fillText('Iₘₚₚ = '+fmt(mpp.i)+' A',m.l+8,yI(mpp.i)-8);
+    ctx.fillStyle='#c93f45';ctx.textAlign='left';ctx.fillText('Uₘₚₚ = '+fmt(mpp.u,4)+' V',x(mpp.u)+8,m.t+ph-25);
+    ctx.fillText('Iₘₚₚ = '+fmt(mpp.i,2)+' A',m.l+8,yI(mpp.i)-8);
   }
 }
 function eventToU(evt){
